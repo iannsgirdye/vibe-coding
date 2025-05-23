@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квесты и награды</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #1a1a2e;
+            min-height: 100vh;
+            color: #e6e6e6;
+        }
+        
+        .quest-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 48rem;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .quest-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .quest-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .reward-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reward-badge::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0) 60%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        .play-btn {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .play-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #ffa3a3, #ff6b6b);
+            background-size: 200% 200%;
+            z-index: -1;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .preview-container {
+            perspective: 1000px;
+        }
+        
+        .game-preview {
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+        
+        .game-preview:hover {
+            transform: rotateY(10deg) rotateX(5deg) translateY(-5px);
+        }
+        
+        /* Кнопка для демонстрации открытия модального окна */
+        .demo-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Кнопка для демонстрации (в реальном приложении она может быть где угодно) -->
+    <button id="openQuestModal" class="demo-btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+        <i class="fas fa-quest mr-2"></i> Показать квесты
+    </button>
+
+    <!-- Модальное окно с квестами -->
+    <div id="questModal" class="quest-modal">
+        <div class="modal-content">
+            <!-- Закрывающая кнопка -->
+            <button id="closeBtn" class="absolute top-4 right-4 text-gray-300 hover:text-white transition-colors duration-200">
+                <i class="fas fa-times-circle text-3xl"></i>
+            </button>
+            
+            <!-- Заголовок и описание -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+                    Квесты и награды
+                </h1>
+                <p class="text-gray-300 max-w-2xl mx-auto">
+                    Выполняйте увлекательные задания, получайте ценные награды и открывайте новые возможности в нашем мире!
+                </p>
+            </div>
+            
+            <!-- Список квестов -->
+            <div class="grid gap-6 mb-12">
+                <!-- Квест 1 -->
+                <div class="quest-card rounded-xl p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <h3 class="text-xl font-semibold">Первые шаги</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            Пройдите обучение и совершите свои первые действия в игре. Это поможет вам быстрее освоиться.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                            <i class="fas fa-clock"></i>
+                            <span>~15 минут</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="reward-badge bg-gradient-to-br from-yellow-400 to-yellow-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center mb-2">
+                            <i class="fas fa-coins text-2xl"></i>
+                        </div>
+                        <span class="font-medium">500 монет</span>
+                    </div>
+                </div>
+                
+                <!-- Квест 2 -->
+                <div class="quest-card rounded-xl p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-3 h-3 rounded-full bg-blue-400"></div>
+                            <h3 class="text-xl font-semibold">Исследователь</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            Посетите 5 разных локаций и откройте для себя новые территории. Каждая локация уникальна и скрывает свои секреты.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                            <i class="fas fa-clock"></i>
+                            <span>~45 минут</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="reward-badge bg-gradient-to-br from-blue-400 to-blue-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center mb-2">
+                            <i class="fas fa-compass text-2xl"></i>
+                        </div>
+                        <span class="font-medium">Карта сокровищ</span>
+                    </div>
+                </div>
+                
+                <!-- Квест 3 -->
+                <div class="quest-card rounded-xl p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-3 h-3 rounded-full bg-purple-400"></div>
+                            <h3 class="text-xl font-semibold">Мастер ремесла</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            Создайте 10 предметов в любой профессии. Развивайте свои навыки и становитесь настоящим мастером своего дела.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                            <i class="fas fa-clock"></i>
+                            <span>~2 часа</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="reward-badge bg-gradient-to-br from-purple-400 to-purple-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center mb-2">
+                            <i class="fas fa-hammer text-2xl"></i>
+                        </div>
+                        <span class="font-medium">Элитный инструмент</span>
+                    </div>
+                </div>
+                
+                <!-- Квест 4 -->
+                <div class="quest-card rounded-xl p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <h3 class="text-xl font-semibold">Испытание силы</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">
+                            Победите могучего босса в одиночку. Это испытание покажет, на что вы действительно способны.
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                            <i class="fas fa-clock"></i>
+                            <span>~1 час</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="reward-badge bg-gradient-to-br from-red-400 to-red-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center mb-2">
+                            <i class="fas fa-trophy text-2xl"></i>
+                        </div>
+                        <span class="font-medium">Легендарный меч</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Кнопка игры и превью -->
+            <div class="text-center">
+                <div class="preview-container inline-block mb-6">
+                    <div class="game-preview bg-gray-800 rounded-xl p-4 border border-gray-700 shadow-lg">
+                        <div class="w-64 h-36 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-play text-4xl text-white opacity-80"></i>
+                        </div>
+                        <div class="mt-3 text-sm text-gray-300">
+                            <p>Готовы к приключениям?</p>
+                            <p class="text-xs mt-1">Последнее обновление: сегодня</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="play-btn px-8 py-3 rounded-full text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 mb-4">
+                    <i class="fas fa-gamepad mr-2"></i> Начать игру
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Открытие модального окна
+        document.getElementById('openQuestModal').addEventListener('click', function() {
+            document.getElementById('questModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        // Закрытие модального окна
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            document.getElementById('questModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Закрытие при клике вне окна
+        document.getElementById('questModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Подсветка активного квеста при наведении
+        const questCards = document.querySelectorAll('.quest-card');
+        questCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const dot = this.querySelector('.w-3');
+                const dotColor = window.getComputedStyle(dot).backgroundColor;
+                this.style.borderColor = dotColor;
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            });
+        });
+        
+        // Анимация кнопки игры
+        const playBtn = document.querySelector('.play-btn');
+        playBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        playBtn.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+        
+        playBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Загрузка...';
+            setTimeout(() => {
+                alert('Игра запущена! В реальном приложении здесь было бы перенаправление в игру.');
+                this.innerHTML = '<i class="fas fa-gamepad mr-2"></i> Начать игру';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
